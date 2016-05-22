@@ -21,6 +21,16 @@ class Controller_Main extends Controller{
 			header("Location: /canteen/breakfast");
 		}
 	}
+
+	function action_log_in(){
+		$json = file_get_contents('php://input');
+	
+		$param = json_decode($json);
+		$data = array('login' => $param->login, "pwd" => $param->pwd);
+		$code = $this->model->CheckUserInDB2($data);
+		echo $code;
+	}
+
 	public function action_logOut(){
 		unset($_SESSION["user_id"]);
 		// header("Location:");

@@ -18,4 +18,8 @@ class Controller_Dinner extends Controller{
 		array_push($_SESSION["orders"], $info);
 		header("Location: /canteen/dinner");
 	}
+	function action_get_dinner($param){
+		$data = $this->model->GetTodayMenus(2);
+		echo json_encode($data);
+	}
 }

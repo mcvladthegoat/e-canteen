@@ -20,14 +20,37 @@ class Model_Myorder extends Model{
 		// $push_res = $this->query("INSERT INTO orders VALUES('',  '$str', 0)");
 		// if($push_res) return true; else false;
 	}
-	function GetCurrentOrders(){
+	function Push_api($user_id, $order){
+		$this->query("DELETE FROM orders WHERE user_id=$user_id AND date=CURDATE()");
+		foreach ($order as $key => $value) {
+			$push_q = $this->query("INSERT INTO orders values('', $user_id, CURDATE(), $value->type, $value->dish_id, 0)");
+			echo mysqli_error($this);
+		}
+	}
+
+	function GetCurrentOrders($user_id){
+		$user_id = (isset($_SESSION["user_id"])) ? $_SESSION["user_id"] : $user_id;
 		$output = array(); $i = 0;
-		$get_current_orders = $this->query("SELECT id, dish_id, type FROM orders WHERE date = CURDATE() AND user_id=$_SESSION[user_id]");
+		$get_current_orders = $this->query("SELECT id, dish_id, type FROM orders WHERE date = CURDATE() AND user_id=$user_id");
 		if(mysqli_num_rows($get_current_orders)){
 			while($out = mysqli_fetch_array($get_current_orders)){
 				$type = $out["type"];
 				$output[$type][$i] = $this->GetInfo($out["dish_id"]);
 				$output[$type][$i]["order_id"] = $out["id"];
+				$i++;
+			}
+		}
+		return $output;
+	}
+		function GetCurrentOrders_api($user_id){
+		$user_id = (isset($_SESSION["user_id"])) ? $_SESSION["user_id"] : $user_id;
+		$output = array(); $i = 0;
+		$get_current_orders = $this->query("SELECT id, dish_id, type FROM orders WHERE date = CURDATE() AND user_id=$user_id");
+		if(mysqli_num_rows($get_current_orders)){
+			while($out = mysqli_fetch_array($get_current_orders)){
+				$output[$i] = $this->GetInfo($out["dish_id"]);
+				$output[$i]["type"] = $out["type"];
+				// $output[][$i]["order_id"] = $out["id"];
 				$i++;
 			}
 		}
@@ -47,6 +70,10 @@ class Model_Myorder extends Model{
 	function Del($id){
 		$delete_order = $this->query("DELETE FROM orders WHERE id='$id'");
 		if($delete_order){return true;} else return false;
+	}
+	function DelOrder_api($user_id){
+		$this->query("DELETE FROM orders WHERE user_id=$user_id AND date=CURDATE()");
+		echo mysqli_error($this);
 	}
 	// function Del($mode)
 }
